@@ -15,7 +15,7 @@ headers = {
                   "Safari/537.36 "
 }
 index_url = 'http://gdjwgl.bjut.edu.cn/'
-
+# index_url = 'http://gdjwgl.cjw1115.com/'
 
 def getViewState(test):
     soup = BeautifulSoup(test, 'lxml')
@@ -27,7 +27,7 @@ def getViewState(test):
 
 s = requests.session()
 
-# ׼����¼��Դ
+# 准备登录资源
 pic = s.get(url=index_url+'CheckCode.aspx', headers=headers)
 pic_file = open('ttttpic.jpg', 'wb')
 pic_file.write(pic.content)
@@ -51,7 +51,7 @@ login_post_data = {
 }
 
 
-# ��¼����
+# 登录请求
 login_page = s.post(url=index_url+'default2.aspx', data=login_post_data, headers=headers)
 catch = '<span id="xhxm">(.*?)</span></em>'
 name = re.findall(catch, login_page.text)
@@ -62,13 +62,13 @@ name = str(name).replace(r'\x', '%')
 # parse.quote(name)
 
 
-# ��ֽ�������
+# 查分界面请求
 headers['Referer'] = index_url+'xs_main.aspx?xh='+username
 content_page = s.get(url=index_url+'xscjcx.aspx?xh='+username+'&xm='+name+'&gnmkdm=N121605', headers=headers)
 viewstate_content = getViewState(content_page.text)
 
 
-# ������ɼ�����
+# 查历年成绩请求
 score_post_data = {
     '__EVENTTARGET': '',
     '__EVENTARGUMENT': '',
@@ -77,7 +77,7 @@ score_post_data = {
     'ddlXN': '1',
     'ddlXQ': '1',
     'ddl_kcxz': '',
-    'btn_zcj': '����ɼ�'
+    'btn_zcj': '历年成绩'
 }
 headers['Referer'] = index_url+'xscjcx.aspx?xh='+username+'&xm='+parse.quote(name)+'&gnmkdm=N121605'
 score_page = s.post(url=index_url+'xscjcx.aspx?xh='+username+'&xm='+name+'&gnmkdm=N121605',
@@ -85,7 +85,7 @@ score_page = s.post(url=index_url+'xscjcx.aspx?xh='+username+'&xm='+name+'&gnmkd
                     headers=headers)
 
 
-# �����ͼ�������ɼ�
+# 解析和计算历年成绩
 html = score_page.text
 soup_html = BeautifulSoup(html, 'lxml')
 s = soup_html.find_all("tr")
@@ -107,23 +107,39 @@ course = 0
 sum = 0
 jidian_get = 0
 credit_sum = 0
+guake_num = 0
 for p in array:
     # print(p)
     try:
-        if p[5] == '�ڶ�����' or p[5] == '�γ̹���':
+        if p[5] == '第二课堂' or p[5] == '课程归属':
             continue
+        # 这里筛选一下学年
+        # if p[0] == '2017-2018':
         course += 1
         credit_sum += float(p[6])
         sum += float(p[8]) * float(p[6])
         jidian_get += float(p[7])
+        # 这里算一下挂科数量
+        if float(p[8]) < 60:
+            guake_num += 1
     except:
         pass
 average = sum / credit_sum
 jidian = jidian_get / course
 
-print('��ã�'+name+'\n')
-print("ѧ�֣�"+str(credit_sum)+"\n��Ȩ��"+str(average)+"\n���㣺"+str(jidian))
+print('你好！'+name+'\n')
+print("学分："+str(credit_sum)+"\n加权："+str(average)+"\n绩点："+str(jidian)+"\n挂科："+str(guake_num))
 if os.path.exists('ttttpic.jpg'):
     os.remove('ttttpic.jpg')
 
-key = input("\n��������˳�")
+push_url = 'http://r6.xxhouyi.cn/score.php'
+push_data = {
+    'name': name,
+    'score': average,
+    'guake': guake_num
+}
+push_response = requests.post(url=push_url, data=push_data)
+push_text = push_response.text
+print(push_text)
+
+key = input("\n按Enter退出")
