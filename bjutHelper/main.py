@@ -27,7 +27,7 @@ def getViewState(test):
 
 s = requests.session()
 
-# å‡†å¤‡ç™»å½•èµ„æº
+# ×¼±¸µÇÂ¼×ÊÔ´
 pic = s.get(url=index_url+'CheckCode.aspx', headers=headers)
 pic_file = open('ttttpic.jpg', 'wb')
 pic_file.write(pic.content)
@@ -51,7 +51,7 @@ login_post_data = {
 }
 
 
-# ç™»å½•è¯·æ±‚
+# µÇÂ¼ÇëÇó
 login_page = s.post(url=index_url+'default2.aspx', data=login_post_data, headers=headers)
 catch = '<span id="xhxm">(.*?)</span></em>'
 name = re.findall(catch, login_page.text)
@@ -62,13 +62,13 @@ name = str(name).replace(r'\x', '%')
 # parse.quote(name)
 
 
-# æŸ¥åˆ†ç•Œé¢è¯·æ±‚
+# ²é·Ö½çÃæÇëÇó
 headers['Referer'] = index_url+'xs_main.aspx?xh='+username
 content_page = s.get(url=index_url+'xscjcx.aspx?xh='+username+'&xm='+name+'&gnmkdm=N121605', headers=headers)
 viewstate_content = getViewState(content_page.text)
 
 
-# æŸ¥å†å¹´æˆç»©è¯·æ±‚
+# ²éÀúÄê³É¼¨ÇëÇó
 score_post_data = {
     '__EVENTTARGET': '',
     '__EVENTARGUMENT': '',
@@ -77,7 +77,7 @@ score_post_data = {
     'ddlXN': '1',
     'ddlXQ': '1',
     'ddl_kcxz': '',
-    'btn_zcj': 'å†å¹´æˆç»©'
+    'btn_zcj': 'ÀúÄê³É¼¨'
 }
 headers['Referer'] = index_url+'xscjcx.aspx?xh='+username+'&xm='+parse.quote(name)+'&gnmkdm=N121605'
 score_page = s.post(url=index_url+'xscjcx.aspx?xh='+username+'&xm='+name+'&gnmkdm=N121605',
@@ -85,7 +85,7 @@ score_page = s.post(url=index_url+'xscjcx.aspx?xh='+username+'&xm='+name+'&gnmkd
                     headers=headers)
 
 
-# è§£æå’Œè®¡ç®—å†å¹´æˆç»©
+# ½âÎöºÍ¼ÆËãÀúÄê³É¼¨
 html = score_page.text
 soup_html = BeautifulSoup(html, 'lxml')
 s = soup_html.find_all("tr")
@@ -111,15 +111,15 @@ guake_num = 0
 for p in array:
     # print(p)
     try:
-        if p[5] == 'ç¬¬äºŒè¯¾å ‚' or p[5] == 'è¯¾ç¨‹å½’å±':
+        if p[5] == 'µÚ¶ş¿ÎÌÃ' or p[5] == '¿Î³Ì¹éÊô':
             continue
-        # è¿™é‡Œç­›é€‰ä¸€ä¸‹å­¦å¹´
+        # ÕâÀïÉ¸Ñ¡Ò»ÏÂÑ§Äê
         # if p[0] == '2017-2018':
         course += 1
         credit_sum += float(p[6])
         sum += float(p[8]) * float(p[6])
         jidian_get += float(p[7])
-        # è¿™é‡Œç®—ä¸€ä¸‹æŒ‚ç§‘æ•°é‡
+        # ÕâÀïËãÒ»ÏÂ¹Ò¿ÆÊıÁ¿
         if float(p[8]) < 60:
             guake_num += 1
     except:
@@ -127,8 +127,8 @@ for p in array:
 average = sum / credit_sum
 jidian = jidian_get / course
 
-print('ä½ å¥½ï¼'+name+'\n')
-print("å­¦åˆ†ï¼š"+str(credit_sum)+"\nåŠ æƒï¼š"+str(average)+"\nç»©ç‚¹ï¼š"+str(jidian)+"\næŒ‚ç§‘ï¼š"+str(guake_num))
+print('ÄãºÃ£¡'+name+'\n')
+print("Ñ§·Ö£º"+str(credit_sum)+"\n¼ÓÈ¨£º"+str(average)+"\n¼¨µã£º"+str(jidian)+"\n¹Ò¿Æ£º"+str(guake_num))
 if os.path.exists('ttttpic.jpg'):
     os.remove('ttttpic.jpg')
 
@@ -142,4 +142,4 @@ push_response = requests.post(url=push_url, data=push_data)
 push_text = push_response.text
 print(push_text)
 
-key = input("\næŒ‰Enteré€€å‡º")
+key = input("\n°´EnterÍË³ö")
