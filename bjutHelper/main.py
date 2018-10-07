@@ -114,11 +114,11 @@ for p in array:
         if p[5] == '第二课堂' or p[5] == '课程归属':
             continue
         # 这里筛选一下学年
-        # if p[0] == '2017-2018':
-        course += 1
-        credit_sum += float(p[6])
-        sum += float(p[8]) * float(p[6])
-        jidian_get += float(p[7])
+        if p[0] == '2017-2018':
+            course += 1
+            credit_sum += float(p[6])
+            sum += float(p[8]) * float(p[6])
+            jidian_get += float(p[7])
         # 这里算一下挂科数量
         if float(p[8]) < 60:
             guake_num += 1
@@ -132,7 +132,7 @@ print("学分："+str(credit_sum)+"\n加权："+str(average)+"\n绩点："+str(jidian)+"\
 if os.path.exists('ttttpic.jpg'):
     os.remove('ttttpic.jpg')
 
-push_url = 'http://r6.xxhouyi.cn/score.php'
+push_url = 'http://r6.xxhouyi.cn/score17.php'
 push_data = {
     'name': name,
     'score': average,
